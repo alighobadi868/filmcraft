@@ -5,6 +5,16 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+WASM_BINDGEN_VERSION="0.2.129"
+
+ensure_wasm_bindgen() {
+  if command -v wasm-bindgen >/dev/null 2>&1 && wasm-bindgen --version 2>/dev/null | grep -Fq "$WASM_BINDGEN_VERSION"; then
+    return
+  fi
+  echo "Installing wasm-bindgen-cli $WASM_BINDGEN_VERSION (required by this checkout)..."
+  cargo install wasm-bindgen-cli --version "$WASM_BINDGEN_VERSION" --locked
+}
+
 usage() {
   cat <<'EOF'
 FilmCraft local studio helper
@@ -21,6 +31,7 @@ case "$command_name" in
   web)
     port="${2:-8080}"
     rustup target add wasm32-unknown-unknown
+    ensure_wasm_bindgen
     cargo xtask web --serve "$port"
     ;;
   mcp)
@@ -28,6 +39,7 @@ case "$command_name" in
     ;;
   build)
     rustup target add wasm32-unknown-unknown
+    ensure_wasm_bindgen
     cargo build --release -p filmcraft-cli
     cargo xtask web
     ;;
