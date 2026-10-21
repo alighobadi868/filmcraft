@@ -25,6 +25,9 @@ jobs:
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
 
+      - name: Install matching wasm-bindgen CLI
+        run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+
       - name: Check CLI MCP build
         run: cargo check -p filmcraft-cli
 
